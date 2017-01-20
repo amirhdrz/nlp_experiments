@@ -16,9 +16,6 @@ from nltk.corpus import wordnet as wn
 
 from syntax import *
 
-# with open('amirshell-7e061a6e0ce9.json', 'r') as f:
-#     key = json.load(f)
-
 # Google Knowledge Graph API key
 api_key = "AIzaSyDPZceqCgLVGytRa14EOvYfcYarjfqMLm0"
 
@@ -35,7 +32,7 @@ def build_train_dataset(dataframe):
         text = row['TEXT']
         category = row['CATEGORY']
 
-        simplified_tokens = simplify2(text)
+        simplified_tokens = simplify(text)
         if simplified_tokens:
             tokens.append(simplified_tokens)
             categories.append(category)
@@ -84,7 +81,7 @@ def train_model(text_matrix, categories):
 
 def predict(model, count_vect_x, text):
 
-    simplified_tokens = simplify2(text)
+    simplified_tokens = simplify(text)
     if not simplified_tokens:
         raise Exception('Could not simplify sentence.')
 
@@ -120,7 +117,7 @@ def syntax_text(text):
 
     return tokens
 
-def simplify2(text):
+def simplify(text):
     google_tokens = syntax_text(text)
 
     root = Token.build_tree_from_google_tokens(google_tokens)
@@ -152,83 +149,3 @@ def simplify2(text):
     print('simplified2', [tk.lemma for tk in simple_dependents])
     return simple_dependents
 
-#########
-def simplify(text):
-    google_tokens = syntax_text(text)
-
-    # Convert the our type of tokens
-    tokens = [Token.from_google_token(tk) for tk in google_tokens]
-
-    # find root
-    edge_indices = [tk.edge_index for tk in tokens]
-    root_index = [tk.edge_label for tk in tokens].index("ROOT")
-
-    # Holds the tokens for the simplified sentence.
-    # i_ prefix implies the items of the list are index values.
-    i_simple_dependents = []
-
-    # dependencies to keep
-    # TODO: need a better way of not duplicating the code below
-    if tokens[root_index].lemma == "be":
-        # keep attrs, acomp and dep
-        edge_indices[root_index] = -1  # Removes uninformative root "be"
-        i_dependents = [i for i, e in enumerate(edge_indices) if e == root_index]
-
-        for i_dep in i_dependents:
-            label = tokens[i_dep].edge_label
-
-            if label in ["ATTR", "ACOMP", "ADVMOD"]:
-                i_simple_dependents.append(i_dep)
-
-            elif label == "NSUBJ":
-                # If BE has a NSUBJ dependent, also include all the NN dependents
-                _i_dependents = [i for i, e in enumerate(edge_indices) if e == i_dep]
-                _nn_dependents = [e for e in _i_dependents if tokens[e].edge_label == "NN"]
-                _amod_dependents = [e for e in _i_dependents if tokens[e].edge_label == "AMOD"]
-                i_simple_dependents.extend(_amod_dependents)
-                i_simple_dependents.extend(_nn_dependents)
-
-                i_simple_dependents.append(i_dep)
-
-    elif root_index == 0 and tokens[root_index].part_of_speech == "VERB":
-        # A naive test for imperative clause
-        edge_indices[0] = -1
-        i_dependents = [i for i, e in enumerate(edge_indices) if e == root_index]
-
-        for i_dep in i_dependents:
-            label = tokens[i_dep].edge_label
-
-            if label in ["DOBJ"]:
-                # If ROOT has a DOBJ dependent, also include all the NN dependents
-                _i_dependents = [i for i, e in enumerate(edge_indices) if e == i_dep]
-                _nn_dependents = [e for e in _i_dependents if tokens[e].edge_label == "NN"]
-                i_simple_dependents.extend(_nn_dependents)
-
-                i_simple_dependents.append(i_dep)
-
-    elif tokens[root_index].part_of_speech == "NOUN":
-        # Root is NOUN. Keep all the noun compound modifiers ("NN")
-        i_dependents = [i for i, e in enumerate(edge_indices) if e == root_index]
-        nn_dependents = [e for e in i_dependents if tokens[e].edge_label == "NN"]
-        i_simple_dependents.extend(nn_dependents)
-
-        i_simple_dependents.append(root_index)
-
-
-
-
-    # print(text)
-    print('simplified:', [tokens[i].lemma for i in i_simple_dependents])
-    # print('-----------------------')
-
-
-questions = [line.rstrip('\n') for line in open('sample_questions.csv', 'r')]
-
-# text = "Who is the president of United States?"
-# google_tokens = syntax_text(text)
-# my_tokens = Token.build_tree_from_google_tokens(google_tokens)
-# for i in range(0, 80):
-#     text = questions[i]
-#     print(i, text)
-#     simplify(text)
-#     simplify2(text)
