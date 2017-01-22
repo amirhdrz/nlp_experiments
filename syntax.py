@@ -1,6 +1,8 @@
 import re
 from nltk.tokenize import RegexpTokenizer
 
+# TODO: remove entity field from Token class and create a new Entity class
+#       this is because entities can sometimes span over multiple tokens
 
 class Token(object):
 
@@ -9,7 +11,7 @@ class Token(object):
         self.text_lower = text_content.lower()
         self.lemma = None
         self.part_of_speech = None
-        self.entity = None
+        self.entity = None  # TODO: REMOVE THIS
         self.edge_index = None
         self.edge_label = None
         self.dependents = {}

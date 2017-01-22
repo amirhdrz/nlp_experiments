@@ -1,34 +1,68 @@
 TEXT,CATEGORY
+# CDF_LAB_AVAILABILITY
 Are there any CDF labs available?,CDF_LAB_AVAILABILITY
+Are there CDF labs available?,CDF_LAB_AVAILABILITY
 Which CDF labs are open?,CDF_LAB_AVAILABILITY
 Which computers labs are open?,CDF_LAB_AVAILABILITY
 Which of the computers labs are open?,CDF_LAB_AVAILABILITY
 Which one of the computer labs are open?,CDF_LAB_AVAILABILITY
 What is the location of computer labs?,CDF_LAB_LOCATION
+#
+# UNIVERSITY_OPEN_STATUS
 Is uoft open today?,UNIVERSITY_OPEN_STATUS
 Is university open on easter?,UNIVERSITY_OPEN_STATUS
+#
+# COURSE_DESCRIPTION
 What is the description of csc309?,COURSE_DESCRIPTION
 Give me the description for csc309,COURSE_DESCRIPTION
 Show me the description for csc309,COURSE_DESCRIPTION
 description of csc309,COURSE_DESCRIPTION
+#
+# COURSE_OFFICE_HOURS
 office hours of csc309,COURSE_OFFICE_HOURS
 When is csc369 office hours?,COURSE_OFFICE_HOURS
+#
+# COURSE_TITLE
 What is the course title of csc309?,COURSE_TITLE
+#
+# COURSE_PREREQ
 What are the prerequisites of csc309?,COURSE_PREREQ
 Prerequisite of csc369?,COURSE_PREREQ
+#
+# COURSE_EXCLUSIONS
 What are the exclusions of csc309?,COURSE_EXCLUSIONS
+#
+# COURSE_BREADTH_REQUIREMENTS
 What breadth requirements does csc309 fulfill?,COURSE_BREADTH_REQUIREMENTS
+#
+# COURSE_HOURS
 What are the timings of csc309 and csc165?,COURSE_HOURS
+#
+# COURSE_LOCATION
 Where is the lecture for csc369 on monday?,COURSE_LOCATION
 Where is the tutorial for csc369 on tuesday?,COURSE_LOCATION
+#
+# COURSE_AVAILABILITY
 Is csc309 offered in the summer?,COURSE_AVAILABILITY
 Is csc309 offered this semester?,COURSE_AVAILABILITY
 Is mat235 offered this year?,COURSE_AVAILABILITY
+#
+# COURSE_INSTRUCTOR
 Does Bogdan teach CSC369?,COURSE_INSTRUCTOR
+#
+# COURSE_CLASS_SIZE
 What is the class size of csc369?,COURSE_CLASS_SIZE
+#
+# COURSE_WAITLIST
 Is there waitlist for csc369?,COURSE_WAITLIST
+#
+# PRINTER
 Where can i print stuff?,PRINTER
+#
+# PARKING
 Where can i find parkign near robarts?,PARKING
+#
+# PLACE_HOURS
 What are the timings of hart house?,PLACE_HOURS
 What are the timings of athletic center?,PLACE_HOURS
 Is hart house open today?,PLACE_HOURS
@@ -39,25 +73,46 @@ What time is Robarts open?,PLACE_HOURS
 What time Robarts is open?,PLACE_HOURS
 What are the hours for my registrars office?,PLACE_HOURS
 What are the timings of swimming pool at u of t ?,PLACE_HOURS
+What are the operating hours of robarts cafeteria?,PLACE_HOURS
+#
+# PLACE_CODE_NAME
+# TODO: simplification for code below sucks
 What is the name of building code MP?,PLACE_CODE_NAME
 What does MP stand for?,PLACE_CODE_NAME
 What is building code MP?,PLACE_CODE_NAME
+#
+# PLACE_LOCATION
 Where is MP?,PLACE_LOCATION
+#
+# COURSE_LOCATION
 give me the location of csc369?,COURSE_LOCATION
+#
+# FOOD
 Where can i find some good food on campus?,FOOD
 Is there any food place around sidney smith?,FOOD
 Is there any food in robarts?,FOOD
-What are the operating hours of robarts cafeteria?,PLACE_HOURS
-Where can i find this book "understnading women"?,BOOK_SEARCH
+#
+# LIBRARY_SEARCH
+Where can i find this book "understnading women"?,LIBRARY_SEARCH
+#
+# DATE_EXAM
 When is the exam for csc309?,DATE_EXAM
 When is the final for csc309?,DATE_EXAM
+#
+# DATE_EVENT
 When is the winter break?,DATE_EVENT
 When are the holidays for the year?,DATE_EVENT
 When is reading week?,DATE_EVENT
 What is the convocation date?,DATE_EVENT
 When is the graduation ceremony?,DATE_EVENT
+#
+# DATE_COURSE_ENROLMENT
 When can i view the start time for enrolment?,DATE_COURSE_ENROLMENT
+#
+# TUITION
 What is the tuition fee for computer science?,TUITION
+#
+# ---------------------------------------------------------------
 give me links to u of t email?
 What is the email of my college registrar?
 give me the degree requirements for computer science specialist?
