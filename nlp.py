@@ -1,13 +1,16 @@
 """
-bdt,vcx,predictions,cats,sents,text_matrix,misindex,misdf=train_pipeline(verbose_output=True)
+bdt,cvx,predictions,cats,sents,text_matrix,misindex,misdf=train_pipeline(verbose_output=True)
 
 IMPORTANT NOTES:
- - This file contains private API keys, don't share publicy.
+ - This file contains private API keys, don't share publicly.
 """
+
+from typing import List
+
 from google.cloud import language
 
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 import numpy as np
@@ -18,14 +21,43 @@ from nltk.corpus import wordnet as wn
 
 from syntax import *
 from utils import *
+from entity import Entity
 
-# Google Knowledge Graph API key
+# Google API key
 api_key = "AIzaSyDPZceqCgLVGytRa14EOvYfcYarjfqMLm0"
 
 _DEBUG = True
 
 if _DEBUG: pd.set_option('display.width', 140)
 
+
+class AnnotatedText(object):
+
+    def __init__(self, text : str):
+        if not text:
+            raise ValueError("text should be set.")
+        self._text = input
+        self._tokens = None
+        self._simplified_tokens = None
+        self._entities = None
+
+    @property
+    def text(self):
+        return self._text
+
+    @property
+    def tokens(self) -> List[Token]:
+        return self._tokens
+
+    @property
+    def simplified_tokens(self) -> List[Token]:
+        return self._simplified_tokens
+
+    @property
+    def entities(self) -> List[Entity]:
+        return self._entities
+
+# TODO: the categories in the CSV file should be checked against the Intent enum
 def read_data(data_file):
     """
     Reads csv data_file and removes all rows that don't have their CATEGORY set.
@@ -40,9 +72,11 @@ def simplify_dataframe(dataframe):
     tokens = []
     categories = []
     num_rows = len(dataframe)
-    for i, row in dataframe.iterrows():
+    i = 1
+    for line_num, row in dataframe.iterrows():
 
-        print('Progress: {}/{}'.format(i+1, num_rows), end="\r")
+        print('Progress: {}/{}'.format(i, num_rows), end="\r")
+        i += 1
 
         text = row['TEXT']
         category = row['CATEGORY']
@@ -93,10 +127,12 @@ def document_tokens_to_sents(tokens):
 
 
 def train_model(text_matrix, categories):
-    bdt = AdaBoostClassifier(
-        DecisionTreeClassifier(max_depth=3),
-        n_estimators=500,
-        algorithm="SAMME")
+    # bdt = AdaBoostClassifier(
+    #     DecisionTreeClassifier(max_depth=3),
+    #     n_estimators=500,
+    #     algorithm="SAMME")
+
+    bdt = RandomForestClassifier(n_estimators=100, max_depth=8)
 
     bdt.fit(text_matrix, categories)
 
@@ -109,27 +145,31 @@ def predict(model, count_vectorizer, text):
     if not simplified_tokens:
         raise Exception('Could not simplify sentence.')
 
-    vec_text = [token_to_sent(simplified_tokens)]
+    vec_text = count_vectorizer.transform([token_to_sent(simplified_tokens)])
 
     prediction = model.predict(vec_text)
     print(prediction)
     return prediction
 
 
-def train_pipeline(train_file='sample_questions', verbose_output=False):
+def train_pipeline(train_file='sample_questions', debug_tokens=None, debug_cats=None, verbose_output=False):
     # Reads train_file csv
     df = read_data(train_file)
 
-    # Uses Google dependency parser to simplify the sentences
-    print('Simplifying text ...')
-    document_tokens, cats = simplify_dataframe(df)
+    if not (debug_tokens or debug_cats):
+
+        # Uses Google dependency parser to simplify the sentences
+        print('Simplifying text ...')
+        document_tokens, cats = simplify_dataframe(df)
+    else:
+        document_tokens, cats = debug_tokens, debug_cats
     cats = np.array(cats)
 
-    # Builds vocabulary from the training data
+    # Builds vocabulary from the training data_files
     vocab = build_dictionary(document_tokens)
 
     # Builds a vectorizer to convert sentences to BOW model
-    # and transforms all the training data into a BOW matrix
+    # and transforms all the training data_files into a BOW matrix
     vectorizer = build_count_vectorizer(document_tokens, cats, vocab)
     sents = document_tokens_to_sents(document_tokens)
     text_matrix = vectorizer.transform(sents)
@@ -187,37 +227,39 @@ def simplify(text, verbose=False):
     """
     google_tokens = syntax_text(text)
 
-    root = Token.build_tree_from_google_tokens(google_tokens)
+    root, _ = Token.build_tree_from_google_tokens(google_tokens)
 
     simple_dependents = []
 
     if root.lemma == 'be':
 
+        # TODO: should we look at the nsubj?
+
         if verbose: print('root (be) at index {}'.format(root.edge_index))
 
         if 'ATTR' in root:
-            if verbose: print('attr ({}) attached to root'.format(root['ATTR'].lemma))
+            if verbose: print('attr ({}) attached to root'.format(root['ATTR']))
             simple_dependents.append(root['ATTR'])
 
         if 'ACOMP' in root:
-            if verbose: print('acomp ({}) attached to root'.format(root['ACOMP'].lemma))
+            if verbose: print('acomp ({}) attached to root'.format(root['ACOMP']))
             simple_dependents.append(root['ACOMP'])
 
         if 'ADVMOD' in root:
-            if verbose: print('advmod ({}) attached to root'.format(root['ADVMOD'].lemma))
-            simple_dependents.append(root['ADVMOD'])
+            if verbose: print('advmod ({}) attached to root'.format(root['ADVMOD']))
+            simple_dependents.extend(root['ADVMOD'])
 
         if 'NSUBJ' in root:
             nsubj = root['NSUBJ']
 
-            if verbose: print('nsubj ({}) attached to root'.format(nsubj.lemma))
+            if verbose: print('nsubj ({}) attached to root'.format(nsubj))
 
             if 'NN' in nsubj:
-                if verbose: print('nn(s) ({}) attached to nsubj'.format(token_to_sent(nsubj['NN'])))
+                if verbose: print('nn(s) ({}) attached to nsubj'.format(nsubj['NN']))
                 simple_dependents.extend(nsubj['NN'])
 
             if 'AMOD' in nsubj:
-                if verbose: print('amod attached to nsubj')
+                if verbose: print('amod ({}) attached to nsubj'.format(nsubj['AMOD']))
                 simple_dependents.append(nsubj['AMOD'])
 
             simple_dependents.append(nsubj)
@@ -226,36 +268,46 @@ def simplify(text, verbose=False):
     elif root.edge_index == 0 and root.part_of_speech == 'VERB':
         # This is a naive test for an imperative clause.
 
-        if verbose: print('text begins with verb ({})'.format(root.lemma))
+        if verbose: print('text begins with root verb ({})'.format(root))
 
         if 'DOBJ' in root:
             dobj = root['DOBJ']
-            if verbose: print('dobj ({}) attached to root'.format(dobj.lemma))
+            if verbose: print('dobj ({}) attached to root'.format(dobj))
 
             if 'NN' in dobj:
-                if verbose: print('dobj ({}) has NN(s) attached to it'.format(dobj.lemma))
+                if verbose: print('dobj ({}) has NN(s) attached to it'.format(dobj))
                 simple_dependents.extend(dobj['NN'])
 
             simple_dependents.append(dobj)
 
-            if verbose: print('dobj ({}) attached to root'.format(dobj.lemma))
+            if verbose: print('dobj ({}) attached to root'.format(dobj))
 
     elif root.part_of_speech == 'VERB':
         # TODO: this is very experimental
 
-        if verbose: print('root ({}) is verb'.format(root.lemma))
+        if verbose: print('root ({}) is verb'.format(root))
+        simple_dependents.append(root)
 
         if 'DOBJ' in root:
             dobj = root['DOBJ']
-            if verbose: print('dobj ({}) attached to root'.format(dobj.lemma))
+            if verbose: print('dobj ({}) attached to root'.format(dobj))
 
             if 'NN' in dobj:
-                if verbose: print('dobj ({}) has NN(s) attached to it'.format(dobj.lemma))
+                if verbose: print('dobj ({}) has NN(s) attached to it'.format(dobj))
                 simple_dependents.extend(dobj['NN'])
 
             simple_dependents.append(dobj)
 
-        simple_dependents.append(root)
+        if 'ADVMOD' in root:
+            advmods = root['ADVMOD']
+            simple_dependents.extend(advmods)
+            if verbose: print('advmod(s) ({}) attached to root'.format(advmods))
+
+        if 'XCOMP' in root:
+            xcomp = root['XCOMP']
+            simple_dependents.append(xcomp)
+            if verbose: print('xcomp ({}) attached to root'.format(xcomp))
+
 
 
     elif root.part_of_speech == 'NOUN':
@@ -264,7 +316,7 @@ def simplify(text, verbose=False):
         if verbose: print('root ({}) is noun'.format(root.lemma))
 
         if 'NN' in root:
-            if verbose: print('nn(s) ({}) attached to root'.format([nn.lemma for nn in root['NN']]))
+            if verbose: print('nn(s) ({}) attached to root'.format(root['NN']))
             simple_dependents.extend(root['NN'])
 
         simple_dependents.append(root)
@@ -273,31 +325,45 @@ def simplify(text, verbose=False):
     # print('simplified2', [tk.lemma for tk in simple_dependents])
     return simple_dependents
 
-def debug_simplify(text):
+
+def debug_simplify(text, model=None, vectorizer=None, prob=True):
+    print_y('input: ' + text)
     tokens = simplify(text, verbose=True)
-    print()
-    print_y('     input: ' + text)
-    print('simplified:', token_to_sent(tokens))
-    print()
+
+    print_y('----')
+    print_g('simplified: ' + str(tokens))
+    if model and vectorizer:
+        bow_vec = vectorizer.transform([token_to_sent(tokens)])
+        if prob:
+
+            def print_(ind):
+                print_g('prediction : {}'.format(model.classes_[ind]))
+                print_g('confidence : {0:.4g}'.format(probs[ind]))
+
+            probs = model.predict_proba(bow_vec)[0]  # Only one sentence is passed
+            sorted_inds = np.argsort(probs)
+            print_(sorted_inds[-1])
+            print_(sorted_inds[-2])
+            print_(sorted_inds[-3])
+        else:
+            prediction = model.predict(bow_vec)
+            print_g('prediction: ' + str(prediction))
+
+
     return tokens
 
 
-def debug_simplify_file(data_file='sample_questions', model=None, cvx=None):
+
+def debug_simplify_file(data_file='sample_questions', model=None, vectorizer=None):
     df = read_data(data_file)
 
     for i, row in df.iterrows():
         cat = row['CATEGORY']
         text = row['TEXT']
 
-        tokens = simplify(text)
-        simplified_sent = token_to_sent(tokens)
+        print_y(str(i) + ' )')
+        debug_simplify(text, model=model, vectorizer=vectorizer)
+        print_g('Ground: ' + cat)
 
-        print_y('Row ' + str(i + 2))
-        print(text, cat)
-
-        if not (model or cvx):
-            prediction = predict(model, cvx, text)
-            print_g(simplified_sent, prediction)
-        else:
-            print_g(simplified_sent)
         print()
+

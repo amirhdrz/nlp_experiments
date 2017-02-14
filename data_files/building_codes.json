@@ -1,0 +1,452 @@
+[
+ {
+   "Code": "AB",
+   "Building": "Astronomy & Astrophysics Building",
+   "Address": "50 St. George St."
+ },
+ {
+   "Code": "AH",
+   "Building": "Alumni Hall",
+   "Address": "121 St. Joseph St."
+ },
+ {
+   "Code": "AP",
+   "Building": "Anthropology Building",
+   "Address": "19 Russell St."
+ },
+ {
+   "Code": "AR",
+   "Building": "Architecture Building",
+   "Address": "230 College St."
+ },
+ {
+   "Code": "BA",
+   "Building": "Bahen Centre for Information Techn.",
+   "Address": "40 St.George St."
+ },
+ {
+   "Code": "BC",
+   "Building": "Birge - Carnegie Library",
+   "Address": "75a Queen's Pk."
+ },
+ {
+   "Code": "BF",
+   "Building": "Bancroft Building",
+   "Address": "4 Bancroft Ave."
+ },
+ {
+   "Code": "BI",
+   "Building": "Banting Institute",
+   "Address": "100 College St."
+ },
+ {
+   "Code": "BL",
+   "Building": "Claude T. Bissell Building",
+   "Address": "140 St. George St."
+ },
+ {
+   "Code": "BN",
+   "Building": "Clara Benson Building",
+   "Address": "320 Huron St."
+ },
+ {
+   "Code": "BR",
+   "Building": "Brennan Hall",
+   "Address": "81 St. Mary St."
+ },
+ {
+   "Code": "BT",
+   "Building": "Isabel Bader Theatre",
+   "Address": "93 Charles St. West"
+ },
+ {
+   "Code": "CB",
+   "Building": "Best Institute",
+   "Address": "112 College St"
+ },
+ {
+   "Code": "CG",
+   "Building": "Canadiana Gallery",
+   "Address": "14 Queen's Park Circle"
+ },
+ {
+   "Code": "CH",
+   "Building": "Convocation Hall",
+   "Address": "31 King's College Circle"
+ },
+ {
+   "Code": "CR",
+   "Building": "Carr Hall",
+   "Address": "100 St. Joseph St."
+ },
+ {
+   "Code": "EA",
+   "Building": "Engineering Annex",
+   "Address": "11 King's College Rd."
+ },
+ {
+   "Code": "EC",
+   "Building": "Economics Department",
+   "Address": "150 St. George St."
+ },
+ {
+   "Code": "EH",
+   "Building": "Elmsley Hall",
+   "Address": "81 St. Mary St."
+ },
+ {
+   "Code": "EJ",
+   "Building": "Edward Johnson Building",
+   "Address": "80 Queen's Park"
+ },
+ {
+   "Code": "EM",
+   "Building": "Emmanuel College",
+   "Address": "75 Queen's Park."
+ },
+ {
+   "Code": "ES",
+   "Building": "Earth Sciences Centre",
+   "Address": "33 Willcocks St."
+ },
+ {
+   "Code": "EX",
+   "Building": "Exam Centre",
+   "Address": "255 McCaul St."
+ },
+ {
+   "Code": "FE",
+   "Building": "Bloor Street West - 371",
+   "Address": "371 Bloor St. W."
+ },
+ {
+   "Code": "FG",
+   "Building": "Fitzgerald Building",
+   "Address": "150 College St."
+ },
+ {
+   "Code": "FH",
+   "Building": "Falconer Hall",
+   "Address": "84 Queen's Park"
+ },
+ {
+   "Code": "GB",
+   "Building": "Galbraith Building",
+   "Address": "35 St. George St."
+ },
+ {
+   "Code": "GI",
+   "Building": "George Ignatieff Theatre",
+   "Address": "15 Devonshire Pl."
+ },
+ {
+   "Code": "HA",
+   "Building": "Haultain Building",
+   "Address": "170 College St. (rear)"
+ },
+ {
+   "Code": "HH",
+   "Building": "Hart House",
+   "Address": "7 Hart House Circ."
+ },
+ {
+   "Code": "HI",
+   "Building": "St. Hilda's College",
+   "Address": "44 Devonshire Pl."
+ },
+ {
+   "Code": "HI CART",
+   "Building": "St. Hilda's College Cartwright Hall",
+   "Address": "44 Devonshire Pl."
+ },
+ {
+   "Code": "HS",
+   "Building": "Health Sciences",
+   "Address": "155 College St."
+ },
+ {
+   "Code": "HU",
+   "Building": "Huron Street - 215",
+   "Address": "215 Huron St."
+ },
+ {
+   "Code": "IN",
+   "Building": "Innis College",
+   "Address": "2 Sussex Ave."
+ },
+ {
+   "Code": "JH",
+   "Building": "Jackman Humanities Building",
+   "Address": "170 St. George St."
+ },
+ {
+   "Code": "KL",
+   "Building": "J. M. Kelly Library",
+   "Address": "113 St. Joseph St."
+ },
+ {
+   "Code": "KP",
+   "Building": "Koffler House",
+   "Address": "569 Spadina Ave."
+ },
+ {
+   "Code": "KS",
+   "Building": "Koffler Student Services Ctr.",
+   "Address": "214 College St."
+ },
+ {
+   "Code": "LA",
+   "Building": "Gerald Larkin Building",
+   "Address": "15 Devonshire Pl."
+ },
+ {
+   "Code": "LI",
+   "Building": "Lillian Massey Building",
+   "Address": "125 Queen's Park Cres."
+ },
+ {
+   "Code": "LM",
+   "Building": "Lash Miller Chemical Labs",
+   "Address": "80 St. George St."
+ },
+ {
+   "Code": "LW",
+   "Building": "Flavelle House",
+   "Address": "78 Queen's Park"
+ },
+ {
+   "Code": "MA",
+   "Building": "Massey College",
+   "Address": "4 Devonshire Place"
+ },
+ {
+   "Code": "MB",
+   "Building": "Mining Building",
+   "Address": "170 College St."
+ },
+ {
+   "Code": "MC",
+   "Building": "Mechanical Engineering Bldg.",
+   "Address": "5 King's College Rd."
+ },
+ {
+   "Code": "ME",
+   "Building": "Centre for Medieval Studies",
+   "Address": "39 Queen's Pk. Cr. E"
+ },
+ {
+   "Code": "MM",
+   "Building": "MacDonald - Mowat House",
+   "Address": "63 St. George St"
+ },
+ {
+   "Code": "MP",
+   "Building": "McLennan Physical Labs",
+   "Address": "255 Huron St."
+ },
+ {
+   "Code": "MR",
+   "Building": "McMurrich Building",
+   "Address": "12   Queen's Park Cr. W."
+ },
+ {
+   "Code": "MS",
+   "Building": "Medical Sciences Building",
+   "Address": "1 King's College Circ."
+ },
+ {
+   "Code": "MU",
+   "Building": "Munk Ctr for International Studies",
+   "Address": "1 Devonshire Place"
+ },
+ {
+   "Code": "NB",
+   "Building": "Borden Building North",
+   "Address": "563 Spadina Ave."
+ },
+ {
+   "Code": "NF",
+   "Building": "Northrop Frye Hall",
+   "Address": "73 Queen's Pk. Cr. E."
+ },
+ {
+   "Code": "NR",
+   "Building": "New College Residence",
+   "Address": "45 Willcocks St."
+ },
+ {
+   "Code": "OI",
+   "Building": "OISE/UT",
+   "Address": "252 Bloor St. W."
+ },
+ {
+   "Code": "PB",
+   "Building": "Leslie L. Dan Pharmacy Building",
+   "Address": "144 College Street"
+ },
+ {
+   "Code": "PG",
+   "Building": "Physical Geography Building",
+   "Address": "45 St. George St."
+ },
+ {
+   "Code": "PI",
+   "Building": "Pontifical Institute",
+   "Address": "59 Queen's Pk. Cr. E."
+ },
+ {
+   "Code": "PR",
+   "Building": "E.J. Pratt Library",
+   "Address": "71 Queen's Pk. Cr. E."
+ },
+ {
+   "Code": "RB",
+   "Building": "Fisher Rare Book Library",
+   "Address": "120 St. George St."
+ },
+ {
+   "Code": "RE",
+   "Building": "Religion Department & Centre",
+   "Address": "123 St. George St."
+ },
+ {
+   "Code": "RL",
+   "Building": "Robarts Library",
+   "Address": "130 St. George St."
+ },
+ {
+   "Code": "RM",
+   "Building": "Physical/Occup. Therapy",
+   "Address": "254-56 McCaul Street"
+ },
+ {
+   "Code": "RO",
+   "Building": "Royal Ontario Musuem",
+   "Address": "100 Queen's Park"
+ },
+ {
+   "Code": "RS",
+   "Building": "Rosebrugh Building",
+   "Address": "4 Taddlecreek Rd."
+ },
+ {
+   "Code": "RT",
+   "Building": "Rotman Centre for Management",
+   "Address": "105 St. George St."
+ },
+ {
+   "Code": "RW",
+   "Building": "Ramsay Wright Zoological",
+   "Address": "25 Harbord St."
+ },
+ {
+   "Code": "SB",
+   "Building": "Borden Building South",
+   "Address": "487 Spadina Ave."
+ },
+ {
+   "Code": "SC",
+   "Building": "Sussex Court",
+   "Address": "21 Sussex Ave."
+ },
+ {
+   "Code": "SF",
+   "Building": "Sandford Fleming Building",
+   "Address": "10 King's College Rd."
+ },
+ {
+   "Code": "SI",
+   "Building": "Simcoe Hall",
+   "Address": "27 King's College Circ."
+ },
+ {
+   "Code": "SM",
+   "Building": "Sigmund Samuel Library Bldg.",
+   "Address": "7-9 King's College Circ."
+ },
+ {
+   "Code": "SP",
+   "Building": "Spadina Crescent - 1",
+   "Address": "1 Spadina Cr."
+ },
+ {
+   "Code": "SS",
+   "Building": "Sidney Smith Hall",
+   "Address": "100 St. George St."
+ },
+ {
+   "Code": "TC",
+   "Building": "Trinity College",
+   "Address": "6 Hoskin Ave."
+ },
+ {
+   "Code": "TF",
+   "Building": "Teefy Hall",
+   "Address": "57 Queen's Park Cres. E."
+ },
+ {
+   "Code": "TZ",
+   "Building": "Tanz Neuroscience Building",
+   "Address": "6 Queen's Pk. Cr. W."
+ },
+ {
+   "Code": "UC",
+   "Building": "University College",
+   "Address": "15 King's College Circ."
+ },
+ {
+   "Code": "UP",
+   "Building": "University College Union",
+   "Address": "79 St. George St."
+ },
+ {
+   "Code": "VA",
+   "Building": "Varsity Arena",
+   "Address": "275 Bloor St. W."
+ },
+ {
+   "Code": "VC",
+   "Building": "Victoria College",
+   "Address": "91 Charles St. W."
+ },
+ {
+   "Code": "WB",
+   "Building": "Wallberg Building",
+   "Address": "184-200 College St."
+ },
+ {
+   "Code": "WE",
+   "Building": "Wetmore Hall, New College",
+   "Address": "300 Huron St."
+ },
+ {
+   "Code": "WI",
+   "Building": "Wilson Hall, New College",
+   "Address": "40 Willcocks St."
+ },
+ {
+   "Code": "WM",
+   "Building": "Wymilwood",
+   "Address": "150 Charles St. W."
+ },
+ {
+   "Code": "WO",
+   "Building": "Woodsworth College Residence",
+   "Address": "321 Bloor St. W."
+ },
+ {
+   "Code": "WS",
+   "Building": "Warren Stevens Building",
+   "Address": "55 Harbord St."
+ },
+ {
+   "Code": "WW",
+   "Building": "Woodsworth College",
+   "Address": "119 St. George St."
+ },
+ {
+   "Code": "ZC",
+   "Building": "Centre for Bioethics",
+   "Address": "88 College St"
+ }
+]

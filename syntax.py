@@ -11,13 +11,12 @@ class Token(object):
         self.text_lower = text_content.lower()
         self.lemma = None
         self.part_of_speech = None
-        self.entity = None  # TODO: REMOVE THIS
         self.edge_index = None
         self.edge_label = None
         self.dependents = {}
 
     def add_child(self, token):
-        if token.edge_label in ['PREP', 'NN', 'P']:
+        if token.edge_label in ['PREP', 'NN', 'P', 'ADVMOD']:
             # Multiple PREP dependencies are possible
             if token.edge_label in self.dependents:
                 self.dependents[token.edge_label] += [token]
@@ -25,6 +24,7 @@ class Token(object):
                 self.dependents[token.edge_label] = [token]
 
         elif token.edge_label in self.dependents:
+            # TODO: this is a silly assumption for a lot of modifiers
             raise Exception(token.edge_label, 'Token already contains a child with given edge label.')
 
         else:
@@ -35,6 +35,15 @@ class Token(object):
 
     def __contains__(self, edge_label):
         return edge_label in self.dependents
+
+    def __str__(self):
+        return self.lemma
+
+    def __repr__(self):
+        if self.lemma:
+            return self.lemma
+        else:
+            return self.text_content
 
     @classmethod
     def from_google_token(cls, token):
@@ -53,38 +62,12 @@ class Token(object):
         """
         root_index = [tk.edge_label for tk in google_tokens].index('ROOT')
         edge_indices = [tk.edge_index for tk in google_tokens]
-        my_tokens = [Token.from_google_token(tk) for tk in google_tokens]
+        tokens = [Token.from_google_token(tk) for tk in google_tokens]
         for i, edge_index in enumerate(edge_indices):
             if i != edge_index:
-                my_tokens[edge_index].add_child(my_tokens[i])
+                tokens[edge_index].add_child(tokens[i])
 
-        return my_tokens[root_index]
-
-
-class RegexpEntityRecognizer(object):
-    """
-    A simple entity recognizer that matches tokens
-    against regular expression to detect entities.
-    """
-    _PATTERNS = [
-        ( 'COURSE_CODE', re.compile(r'[a-z]{3,4}[0-9]{3,4}((h?1?(f/s)?)|(y?1?y?))?') )
-    ]
-
-    def __init__(self):
-        pass
-
-    def process(self, tokens):
-        """
-
-        :param tokens: List of tokens
-        :return:
-        """
-
-        for tok in tokens:
-            for e_type, e_ptrn in RegexpEntityRecognizer._PATTERNS:
-                if e_ptrn.match(tok.text_lower) is not None:
-                    tok.entity = e_type
-
+        return tokens[root_index], tokens
 
 
 ## DEBUGGING

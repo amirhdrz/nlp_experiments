@@ -6,11 +6,9 @@ Which CDF labs are open?,CDF_LAB_AVAILABILITY
 Which computers labs are open?,CDF_LAB_AVAILABILITY
 Which of the computers labs are open?,CDF_LAB_AVAILABILITY
 Which one of the computer labs are open?,CDF_LAB_AVAILABILITY
-What is the location of computer labs?,CDF_LAB_LOCATION
 #
 # UNIVERSITY_OPEN_STATUS
-Is uoft open today?,UNIVERSITY_OPEN_STATUS
-Is university open on easter?,UNIVERSITY_OPEN_STATUS
+# TODO: wildly different parse for 'is uoft open tomorrow'
 #
 # COURSE_DESCRIPTION
 What is the description of csc309?,COURSE_DESCRIPTION
@@ -36,7 +34,6 @@ What are the exclusions of csc309?,COURSE_EXCLUSIONS
 What breadth requirements does csc309 fulfill?,COURSE_BREADTH_REQUIREMENTS
 #
 # COURSE_HOURS
-What are the timings of csc309 and csc165?,COURSE_HOURS
 #
 # COURSE_LOCATION
 Where is the lecture for csc369 on monday?,COURSE_LOCATION
@@ -55,6 +52,7 @@ What is the class size of csc369?,COURSE_CLASS_SIZE
 #
 # COURSE_WAITLIST
 Is there waitlist for csc369?,COURSE_WAITLIST
+What is the waitlist for csc309?,COURSE_WAITLIST
 #
 # PRINTER
 Where can i print stuff?,PRINTER
@@ -63,6 +61,11 @@ Where can i print stuff?,PRINTER
 Where can i find parkign near robarts?,PARKING
 #
 # PLACE_HOURS
+# TODO: fails at 'when is  hart house going to open today'
+# Need to look at the named entities to decipher the text below
+What are the timings of csc309 and csc165?,PLACE_HOURS
+Is uoft open today?,PLACE_HOURS
+Is university open on easter?,PLACE_HOURS
 What are the timings of hart house?,PLACE_HOURS
 What are the timings of athletic center?,PLACE_HOURS
 Is hart house open today?,PLACE_HOURS
@@ -83,6 +86,8 @@ What is building code MP?,PLACE_CODE_NAME
 #
 # PLACE_LOCATION
 Where is MP?,PLACE_LOCATION
+What is the location of computer labs?,PLACE_LOCATION
+What is the address of bahen building?,PLACE_LOCATION
 #
 # COURSE_LOCATION
 give me the location of csc369?,COURSE_LOCATION
