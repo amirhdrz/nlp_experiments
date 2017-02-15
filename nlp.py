@@ -5,6 +5,8 @@ IMPORTANT NOTES:
  - This file contains private API keys, don't share publicly.
 """
 
+import time
+import concurrent.futures
 from typing import List
 
 from google.cloud import language
@@ -28,7 +30,8 @@ api_key = "AIzaSyDPZceqCgLVGytRa14EOvYfcYarjfqMLm0"
 
 _DEBUG = True
 
-if _DEBUG: pd.set_option('display.width', 140)
+if _DEBUG:
+    pd.set_option('display.width', 140)
 
 
 class AnnotatedText(object):
@@ -57,6 +60,7 @@ class AnnotatedText(object):
     def entities(self) -> List[Entity]:
         return self._entities
 
+
 # TODO: the categories in the CSV file should be checked against the Intent enum
 def read_data(data_file):
     """
@@ -66,6 +70,48 @@ def read_data(data_file):
     """
     df = pd.read_csv(data_file + '.csv')
     return df[pd.notnull(df['CATEGORY'])]
+
+
+def simplify_parallel(dataframe):
+    tokens = []
+    categories = []
+    num_rows = len(dataframe)
+    progress_count = 1
+
+    future_to_ind = {}
+
+    start_time = time.time()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+
+        # Scheduling the function call
+        for i, row in dataframe.iterrows():
+            fs = executor.submit(syntax_text, row['TEXT'])
+            future_to_ind[fs] = i
+
+        for future in concurrent.futures.as_completed(future_to_ind):
+
+            print('Progress: {}/{}'.format(progress_count, num_rows), end="\r")
+            progress_count += 1
+
+            index = future_to_ind[future]
+            try:
+                # After getting the google tokens, it runs them through
+                # the simplify function
+                google_tokens = future.result()
+                root_token, _ = Token.build_tree_from_google_tokens(google_tokens)
+                simplified_tokens = simplify(root_token)
+
+                tokens.append(simplified_tokens)
+                categories.append(dataframe.ix[index]['CATEGORY'])
+            except Exception as exc:
+                print('exception at %d' % index, exc)
+
+
+    print()
+    print("%.2f seconds" % (time.time() - start_time))
+
+    return tokens, categories
 
 
 def simplify_dataframe(dataframe):
@@ -160,7 +206,7 @@ def train_pipeline(train_file='sample_questions', debug_tokens=None, debug_cats=
 
         # Uses Google dependency parser to simplify the sentences
         print('Simplifying text ...')
-        document_tokens, cats = simplify_dataframe(df)
+        document_tokens, cats = simplify_parallel(df)
     else:
         document_tokens, cats = debug_tokens, debug_cats
     cats = np.array(cats)
@@ -198,7 +244,7 @@ def train_pipeline(train_file='sample_questions', debug_tokens=None, debug_cats=
 
 def training_set_test(model, count_vectorizer, test_file):
     df = read_data(test_file)
-    document_tokens, cats = simplify_dataframe(df)
+    document_tokens, cats = simplify_parallel(df)
     test_sents = document_tokens_to_sents(document_tokens)
     text_matrix = count_vectorizer.transform(test_sents)
 
@@ -219,38 +265,37 @@ def syntax_text(text):
     return tokens
 
 
-def simplify(text, verbose=False):
+def simplify(root_token : Token, verbose=False):
     """
-    Simplifies string text to few descriptive tokens that try to preserve the intent.
-    :param text: string
+    Simplifies google tokens to few descriptive tokens that try to preserve the intent.
+    :param root_token: head of the syntax tree
     :return: syntax.Token
     """
-    google_tokens = syntax_text(text)
-
-    root, _ = Token.build_tree_from_google_tokens(google_tokens)
+    # google_tokens = syntax_text(text)
+    # root_token, _ = Token.build_tree_from_google_tokens(google_tokens)
 
     simple_dependents = []
 
-    if root.lemma == 'be':
+    if root_token.lemma == 'be':
 
         # TODO: should we look at the nsubj?
 
-        if verbose: print('root (be) at index {}'.format(root.edge_index))
+        if verbose: print('root (be) at index {}'.format(root_token.edge_index))
 
-        if 'ATTR' in root:
-            if verbose: print('attr ({}) attached to root'.format(root['ATTR']))
-            simple_dependents.append(root['ATTR'])
+        if 'ATTR' in root_token:
+            if verbose: print('attr ({}) attached to root'.format(root_token['ATTR']))
+            simple_dependents.append(root_token['ATTR'])
 
-        if 'ACOMP' in root:
-            if verbose: print('acomp ({}) attached to root'.format(root['ACOMP']))
-            simple_dependents.append(root['ACOMP'])
+        if 'ACOMP' in root_token:
+            if verbose: print('acomp ({}) attached to root'.format(root_token['ACOMP']))
+            simple_dependents.append(root_token['ACOMP'])
 
-        if 'ADVMOD' in root:
-            if verbose: print('advmod ({}) attached to root'.format(root['ADVMOD']))
-            simple_dependents.extend(root['ADVMOD'])
+        if 'ADVMOD' in root_token:
+            if verbose: print('advmod ({}) attached to root'.format(root_token['ADVMOD']))
+            simple_dependents.extend(root_token['ADVMOD'])
 
-        if 'NSUBJ' in root:
-            nsubj = root['NSUBJ']
+        if 'NSUBJ' in root_token:
+            nsubj = root_token['NSUBJ']
 
             if verbose: print('nsubj ({}) attached to root'.format(nsubj))
 
@@ -265,13 +310,13 @@ def simplify(text, verbose=False):
             simple_dependents.append(nsubj)
 
 
-    elif root.edge_index == 0 and root.part_of_speech == 'VERB':
+    elif root_token.edge_index == 0 and root_token.part_of_speech == 'VERB':
         # This is a naive test for an imperative clause.
 
-        if verbose: print('text begins with root verb ({})'.format(root))
+        if verbose: print('text begins with root verb ({})'.format(root_token))
 
-        if 'DOBJ' in root:
-            dobj = root['DOBJ']
+        if 'DOBJ' in root_token:
+            dobj = root_token['DOBJ']
             if verbose: print('dobj ({}) attached to root'.format(dobj))
 
             if 'NN' in dobj:
@@ -282,14 +327,14 @@ def simplify(text, verbose=False):
 
             if verbose: print('dobj ({}) attached to root'.format(dobj))
 
-    elif root.part_of_speech == 'VERB':
+    elif root_token.part_of_speech == 'VERB':
         # TODO: this is very experimental
 
-        if verbose: print('root ({}) is verb'.format(root))
-        simple_dependents.append(root)
+        if verbose: print('root ({}) is verb'.format(root_token))
+        simple_dependents.append(root_token)
 
-        if 'DOBJ' in root:
-            dobj = root['DOBJ']
+        if 'DOBJ' in root_token:
+            dobj = root_token['DOBJ']
             if verbose: print('dobj ({}) attached to root'.format(dobj))
 
             if 'NN' in dobj:
@@ -298,28 +343,28 @@ def simplify(text, verbose=False):
 
             simple_dependents.append(dobj)
 
-        if 'ADVMOD' in root:
-            advmods = root['ADVMOD']
+        if 'ADVMOD' in root_token:
+            advmods = root_token['ADVMOD']
             simple_dependents.extend(advmods)
             if verbose: print('advmod(s) ({}) attached to root'.format(advmods))
 
-        if 'XCOMP' in root:
-            xcomp = root['XCOMP']
+        if 'XCOMP' in root_token:
+            xcomp = root_token['XCOMP']
             simple_dependents.append(xcomp)
             if verbose: print('xcomp ({}) attached to root'.format(xcomp))
 
 
 
-    elif root.part_of_speech == 'NOUN':
+    elif root_token.part_of_speech == 'NOUN':
         # If the root is Noun, keep all the noun compound modifiers 'NN'
 
-        if verbose: print('root ({}) is noun'.format(root.lemma))
+        if verbose: print('root ({}) is noun'.format(root_token.lemma))
 
-        if 'NN' in root:
-            if verbose: print('nn(s) ({}) attached to root'.format(root['NN']))
-            simple_dependents.extend(root['NN'])
+        if 'NN' in root_token:
+            if verbose: print('nn(s) ({}) attached to root'.format(root_token['NN']))
+            simple_dependents.extend(root_token['NN'])
 
-        simple_dependents.append(root)
+        simple_dependents.append(root_token)
 
 
     # print('simplified2', [tk.lemma for tk in simple_dependents])

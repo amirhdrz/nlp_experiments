@@ -46,8 +46,9 @@ class InteractionTopic(object):
     like the user id.
     """
 
-    def __init__(self, intent : Intent):
+    def __init__(self, intent : Intent, frame : Frame):
         self._intent = intent
+        self._frame = frame
         self._conversation = []
         self._expecting = []
 
@@ -56,7 +57,15 @@ class InteractionTopic(object):
         return self._intent
 
     @property
+    def frame(self):
+        return self._frame
+
+    @property
     def conversation(self) -> List[AnnotatedText]:
+        """
+        The conversation history
+        :return:
+        """
         return self._conversation
 
     @property
