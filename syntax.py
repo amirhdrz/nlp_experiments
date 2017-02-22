@@ -40,6 +40,7 @@ class Token(object):
         return self.lemma
 
     def __repr__(self):
+        # TODO: Need a better representation
         if self.lemma:
             return self.lemma
         else:

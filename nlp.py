@@ -7,6 +7,7 @@ IMPORTANT NOTES:
 
 import time
 import concurrent.futures
+from collections import namedtuple
 from typing import List
 
 from google.cloud import language
@@ -23,10 +24,8 @@ from nltk.corpus import wordnet as wn
 
 from syntax import *
 from utils import *
-from entity import Entity
-
-# Google API key
-api_key = "AIzaSyDPZceqCgLVGytRa14EOvYfcYarjfqMLm0"
+import entity_recognition as er
+import intent
 
 _DEBUG = True
 
@@ -34,12 +33,23 @@ if _DEBUG:
     pd.set_option('display.width', 140)
 
 
-class AnnotatedText(object):
+class NLPException(Exception):
+    """
+    A NLP related exception.
+    """
+    pass
+
+
+class AnnotatedText:
+    """
+    Note that this class performs lazy evaluation
+    """
 
     def __init__(self, text : str):
         if not text:
             raise ValueError("text should be set.")
-        self._text = input
+        self._text = text
+        self._root_token = None
         self._tokens = None
         self._simplified_tokens = None
         self._entities = None
@@ -48,16 +58,30 @@ class AnnotatedText(object):
     def text(self):
         return self._text
 
+    def _populate_tokens(self):
+        google_tokens = syntax_text(self.text)
+        self._root_token, self._tokens = Token.build_tree_from_google_tokens(google_tokens)
+
     @property
     def tokens(self) -> List[Token]:
+        if not self._tokens:
+            self._populate_tokens()
         return self._tokens
+
+    @property
+    def root_token(self) -> Token:
+        if not self._root_token:
+            self._populate_tokens()
+        return self._root_token
 
     @property
     def simplified_tokens(self) -> List[Token]:
         return self._simplified_tokens
 
     @property
-    def entities(self) -> List[Entity]:
+    def entities(self) -> List[er.Entity]:
+        if not self._entities:
+            self._entities = er.extract_entities(self.tokens)
         return self._entities
 
 
@@ -173,29 +197,38 @@ def document_tokens_to_sents(tokens):
 
 
 def train_model(text_matrix, categories):
-    # bdt = AdaBoostClassifier(
+    # model = AdaBoostClassifier(
     #     DecisionTreeClassifier(max_depth=3),
     #     n_estimators=500,
     #     algorithm="SAMME")
 
-    bdt = RandomForestClassifier(n_estimators=100, max_depth=8)
+    model = RandomForestClassifier(n_estimators=100, max_depth=8)
 
-    bdt.fit(text_matrix, categories)
+    model.fit(text_matrix, categories)
 
-    return bdt
+    return model
 
 
-def predict(model, count_vectorizer, text):
+def predict(model, count_vectorizer, root_token: Token) -> intent.Intent:
+    """
+    This is a blocking function that calls Google APIs
+    :param model:
+    :param count_vectorizer:
+    :param text: One sentence string
+    :return:
+    """
 
-    simplified_tokens = simplify(text)
+    # google_tokens = syntax_text(text)
+    # root_token, _ = Token.build_tree_from_google_tokens(google_tokens)
+
+    simplified_tokens = simplify(root_token)
     if not simplified_tokens:
-        raise Exception('Could not simplify sentence.')
+        raise NLPException('Could not simplify sentence')
 
     vec_text = count_vectorizer.transform([token_to_sent(simplified_tokens)])
 
-    prediction = model.predict(vec_text)
-    print(prediction)
-    return prediction
+    prediction = model.predict(vec_text)[0]
+    return intent.Intent(prediction)
 
 
 def train_pipeline(train_file='sample_questions', debug_tokens=None, debug_cats=None, verbose_output=False):
@@ -222,11 +255,11 @@ def train_pipeline(train_file='sample_questions', debug_tokens=None, debug_cats=
 
     # Trains a classifier
     print('Training model ...')
-    bdt = train_model(text_matrix, cats)
+    model = train_model(text_matrix, cats)
 
     # Tests the classifier on the training set
     print('Testing model ...')
-    predictions = bdt.predict(text_matrix)
+    predictions = model.predict(text_matrix)
     true_pos = predictions == cats
     print('Accuracy', round(np.sum(true_pos) / len(predictions), 2))
 
@@ -236,10 +269,9 @@ def train_pipeline(train_file='sample_questions', debug_tokens=None, debug_cats=
         misclass_df['Prediction'] = pd.Series(predictions[misclass_index], index=misclass_df.index)
         misclass_df['Ground Truth'] = pd.Series(cats[misclass_index], index=misclass_df.index)
 
-
-        return bdt, vectorizer, predictions, cats, sents, text_matrix, misclass_index, misclass_df
+        return model, vectorizer, predictions, cats, sents, text_matrix, misclass_index, misclass_df
     else:
-        return bdt, vectorizer
+        return model, vectorizer
 
 
 def training_set_test(model, count_vectorizer, test_file):
@@ -265,7 +297,7 @@ def syntax_text(text):
     return tokens
 
 
-def simplify(root_token : Token, verbose=False):
+def simplify(root_token: Token, verbose=False):
     """
     Simplifies google tokens to few descriptive tokens that try to preserve the intent.
     :param root_token: head of the syntax tree
@@ -371,10 +403,20 @@ def simplify(root_token : Token, verbose=False):
     return simple_dependents
 
 
-def debug_simplify(text, model=None, vectorizer=None, prob=True):
+def debug_simplify(text):
     print_y('input: ' + text)
-    tokens = simplify(text, verbose=True)
+    google_tokens = syntax_text(text)
+    root_token, _ = Token.build_tree_from_google_tokens(google_tokens)
+    tokens = simplify(root_token, verbose=True)
 
+    return tokens
+
+def debug(text, model=None, vectorizer=None, prob=True):
+    print_y('input: ' + text)
+    google_tokens = syntax_text(text)
+    root_token, _ = Token.build_tree_from_google_tokens(google_tokens)
+
+    tokens = simplify(root_token, verbose=True)
     print_y('----')
     print_g('simplified: ' + str(tokens))
     if model and vectorizer:

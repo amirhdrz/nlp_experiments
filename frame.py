@@ -1,79 +1,87 @@
 """ Frames and and their corresponding slot fillters
 """
 
-
 # Each frame contains slots, each slot has a slot filler
 # PARENT is represented through class inheritance.
 
 from abc import ABC, abstractmethod
 
-from functools import wraps
+import context  # used for type hinting
+from entity_recognition import EntityType
 
-from syntax import Token
-from entity import Entity
-from typing import List
-from nlp import AnnotatedText
-
-from intent import Intent
 
 class Frame(ABC):
     """
     Abstract Frame class
     """
-    def __init__(self, tokens : List[Token], entities : List[Entity]):
-        self._tokens = tokens
-        self._entities = entities
-
-def slot(ident):
-    def inner(slot_function):
-        @wraps(slot_function)
-        def wrapper(*args, **kwargs):
-            if vars(args[0])[ident]:
-                return slot_function(*args, **kwargs)
-            else:
-                return None
-        return wrapper
-    return inner
-
-
-class InteractionTopic(object):
-    """
-    An InteractionTopic is a (limited) representation
-    of the conversation revolving around a single topic,
-    represented as a signle intent.
-
-    This class does not deal with chatbot-platform specifics
-    like the user id.
-    """
-
-    def __init__(self, intent : Intent, frame : Frame):
-        self._intent = intent
-        self._frame = frame
-        self._conversation = []
-        self._expecting = []
+    def __init__(self, context, parent_frame=None):
+        self._context = context  # Should not be pickled
+        self._parent = parent_frame
+        self._frame_data = None
 
     @property
-    def intent(self) -> Intent:
-        return self._intent
+    def context(self) -> 'context.Context':
+        return self._context
 
     @property
-    def frame(self):
-        return self._frame
+    def parent(self):
+        return self._parent
 
     @property
-    def conversation(self) -> List[AnnotatedText]:
+    def frame_data(self):
+        if not self._frame_data:
+            self._frame_data = self._frame_data_filler()
+        return self._frame_data
+
+    def _frame_data_filler(self):
         """
-        The conversation history
-        :return:
+        Returns data that fills this frame if empty.
+        Subclasses should only return the filler data,
+        and not set self._frame_data directly.
         """
-        return self._conversation
+        pass
 
-    @property
-    def expecting(self) -> List[Entity]:
-        return self._expecting
+    @abstractmethod
+    def user_message(self) -> str:
+        """
+        User-oriented description of the frame.
+        """
+        pass
 
-    def add_user_input(self, annotated_text : AnnotatedText):
-        self._conversation.append(annotated_text)
 
-    def add_expected_entity(self, entity : Entity):
-        self._expecting.append(entity)
+class LambdaFrame(Frame):
+
+    def __init__(self, context, parent_frame, filler, default_message='{data}'):
+        super().__init__(context, parent_frame=parent_frame)
+        self._frame_data_filler = filler
+        self.default_message = default_message
+
+    def user_message(self):
+        return self.default_message.format(data=self.frame_data)
+
+    @staticmethod
+    def partial_constructor(context, parent_frame, parent_frame_data):
+        def _constructor(key, default_message='{data}'):
+            return LambdaFrame(context,
+                               parent_frame,
+                               lambda:  parent_frame_data[key],
+                               default_message=default_message)
+        return _constructor
+
+
+class UserFillingFrame(Frame):
+
+    def __init__(self, context, parent_frame, prompt_message: str,
+                 expected_entity: EntityType):
+        super().__init__(context=context, parent_frame=parent_frame)
+        self.prompt_message = prompt_message
+        self.expected_entity = expected_entity
+
+    def _frame_data_filler(self):
+
+        # 1. Show user prompt message
+        # TODO: this is only used for debugging
+        print(self.prompt_message)
+
+        # 2. Add expected entity to the context
+        self.context.current_topic.add_expected_entity(self.expected_entity)

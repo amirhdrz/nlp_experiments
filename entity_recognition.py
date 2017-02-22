@@ -1,6 +1,10 @@
-""" Entity extraction.
+# TODO: need a better name for this file
+""" entity_recognition.py - Entity extraction.
 
 """
+
+from typing import List
+from enum import Enum, unique
 
 import re
 import data
@@ -10,25 +14,29 @@ _reg_course_coee = re.compile(r'[a-z]{3,4}[0-9]{3,4}((h?1?(f/s)?)|(y?1?y?))?')
 
 _building_codes = data.building_codes()
 
+@unique
+class EntityType(Enum):
+    COURSE_CODE = 'COURSE_CODE'
+    BUILDING_CODE = 'BUILDING_CODE'
+
 
 class Entity:
 
-    _TYPES = ('COURSE_CODE',
-              'BUILDING_CODE')
-
-    def __init__(self, entity_type, *tokens):
-        if entity_type in self._TYPES:
-            self.type = entity_type
+    def __init__(self, type: EntityType, *tokens):
+        if type in EntityType:
+            self._type = type
         else:
-            raise Exception('Unrecognized entity type ({})'.format(entity_type))
+            raise ValueError('Unrecognized entity type ({})'.format(type))
 
-        self.tokens = tokens
+        self._tokens = tokens
 
-    def get_type(self):
-        return self.type
+    @property
+    def type(self):
+        return self._type
 
-    def get_tokens(self):
-        return self.tokens
+    @property
+    def tokens(self):
+        return self._tokens
 
     def __str__(self):
         return str((self.type, self.tokens))
@@ -37,7 +45,7 @@ class Entity:
         return str((self.type, self.tokens))
 
 
-def extract_entities(tokens):
+def extract_entities(tokens: List[Token]):
     """ Returns a list of Entity objects
     :param tokens:
     :return:
@@ -51,11 +59,11 @@ def extract_entities(tokens):
         if tk.part_of_speech == 'NOUN':
 
             if _reg_course_coee.match(tk.text_lower) is not None:
-                entities.append(Entity('COURSE_CODE', tk))
+                entities.append(Entity(EntityType.COURSE_CODE, tk))
 
             # Have to turn these stuff into more advanced searches
             elif tk.text_content.upper() in _building_codes:
-                entities.append(Entity('BUILDING_CODE', tk))
+                entities.append(Entity(EntityType.BUILDING_CODE, tk))
 
     return entities
 
