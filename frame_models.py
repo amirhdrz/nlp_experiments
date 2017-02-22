@@ -36,18 +36,19 @@ class CourseFrame(Frame):
             # course entity was not found in the context
             # DEBUG only used for debugging
             print(rs.course_code_prompt)
-
             self.context.current_topic.add_expected_entity(EntityType.COURSE_CODE)
+            return None
 
         def user_message(self):
             raise NotImplementedError()
+
 
     def __init__(self, context):
         super().__init__(context, parent_frame=None)
 
         # Instantiating the slots
         lambda_slot = LambdaFrame.partial_constructor(
-            context, parent_frame=self, parent_frame_data=self._frame_data
+            context, parent_frame=self, parent_frame_data=self.frame_data
         )
 
         self.coursecode = CourseFrame.CourseCode(context, self)
@@ -55,16 +56,18 @@ class CourseFrame(Frame):
         self.description = lambda_slot('description')
         self.prerequisite = lambda_slot('prerequisite')
 
-
     def _frame_data_filler(self):
-        # DEBUG code
-        print('API requiest for coursecode {}'.format(self.coursecode.frame_data))
-        return {'description': 'Operating Systems',
-                'title': 'csc369',
-                'prerequistie': 'csc237'}
+        coursecode = self.coursecode.frame_data()
+        if coursecode:
+            # DEBUG code
+            return {'description': 'Operating Systems',
+                    'title': 'csc369',
+                    'prerequistie': 'csc237'}
+        else: return None
 
     def user_message(self):
         raise NotImplementedError()
+
 
 class BuildingFrame(Frame):
 

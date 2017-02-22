@@ -56,7 +56,7 @@ def extract_entities(tokens: List[Token]):
 
     for tk in tokens:
 
-        if tk.part_of_speech == 'NOUN':
+        if tk.part_of_speech == 'NOUN' or tk.part_of_speech == 'X':
 
             if _reg_course_coee.match(tk.text_lower) is not None:
                 entities.append(Entity(EntityType.COURSE_CODE, tk))

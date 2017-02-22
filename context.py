@@ -24,6 +24,10 @@ class Context:
     def current_topic(self, value: 'InteractionTopic'):
         self._current_topic = value
 
+    @current_topic.deleter
+    def current_topic(self):
+        self._current_topic = None
+
 
 class InteractionTopic:
     """

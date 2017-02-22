@@ -10,4 +10,4 @@ def nlp_fail(user_message: str):
     selected = random.choice(sents)
     return selected % user_message
 
-course_code_prompt = "Please enter a course code"
+course_code_prompt = "Please enter a course code."

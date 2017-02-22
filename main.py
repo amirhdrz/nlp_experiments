@@ -17,14 +17,19 @@ def main(model, vectorizer):
 
     print("Chatbot interactive environment")
     print("Type 'exit' to exit the program")
+    print()
 
     # Creating a new context for each session
     user_context = Context()
 
-    for user_message in iter(partial(input, '\n\033[92m\u03bb\033[0m '), 'exit'):
+    for user_message in iter(partial(input, '\033[92m\u03bb\033[0m '), 'exit'):
+
+        if not user_message:
+            continue
+
         try:
             process_message(model, vectorizer, user_context, user_message)
-        except NLPException:
+        except NLPError:
             print(rs.nlp_fail(user_message))
 
 

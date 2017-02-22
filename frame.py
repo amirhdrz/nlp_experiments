@@ -1,4 +1,7 @@
-""" Frames and and their corresponding slot fillters
+""" frame.py - Frames and and their corresponding slot fillters
+
+NOTE: Convention used with frame fillers and user_message functions,
+is to return None explicitly.
 """
 
 # Each frame contains slots, each slot has a slot filler
@@ -27,7 +30,6 @@ class Frame(ABC):
     def parent(self):
         return self._parent
 
-    @property
     def frame_data(self):
         if not self._frame_data:
             self._frame_data = self._frame_data_filler()
@@ -42,29 +44,44 @@ class Frame(ABC):
         pass
 
     @abstractmethod
-    def user_message(self) -> str:
+    def user_message(self):
         """
         User-oriented description of the frame.
+
+        Current convention is that this function should return None,
+        if it cannot generate the appropriate response.
         """
         pass
 
 
 class LambdaFrame(Frame):
 
-    def __init__(self, context, parent_frame, filler, default_message='{data}'):
+    def __init__(self, context, parent_frame,
+                 key: str, default_message='{data}'):
         super().__init__(context, parent_frame=parent_frame)
-        self._frame_data_filler = filler
+        self.key = key
         self.default_message = default_message
 
+    def _frame_data_filler(self):
+        data = self.parent.frame_data()
+        if data:
+            return data[self.key]
+        else: return None
+
+
     def user_message(self):
-        return self.default_message.format(data=self.frame_data)
+        data = self.frame_data()
+        if data:
+            return self.default_message.format(data=self.frame_data())
+        else:
+            return None
 
     @staticmethod
     def partial_constructor(context, parent_frame, parent_frame_data):
         def _constructor(key, default_message='{data}'):
             return LambdaFrame(context,
                                parent_frame,
-                               lambda:  parent_frame_data[key],
+                               key,
                                default_message=default_message)
         return _constructor
 

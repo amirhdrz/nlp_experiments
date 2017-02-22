@@ -1,13 +1,8 @@
-"""
-bdt,cvx,predictions,cats,sents,text_matrix,misindex,misdf=train_pipeline(verbose_output=True)
-
-IMPORTANT NOTES:
- - This file contains private API keys, don't share publicly.
+""" nlp.py - Contains classes and functions that process natural language.
 """
 
 import time
 import concurrent.futures
-from collections import namedtuple
 from typing import List
 
 from google.cloud import language
@@ -19,7 +14,6 @@ from sklearn.tree import DecisionTreeClassifier
 import numpy as np
 import pandas as pd
 
-from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import wordnet as wn
 
 from syntax import *
@@ -33,7 +27,7 @@ if _DEBUG:
     pd.set_option('display.width', 140)
 
 
-class NLPException(Exception):
+class NLPError(Exception):
     """
     A NLP related exception.
     """
@@ -223,7 +217,7 @@ def predict(model, count_vectorizer, root_token: Token) -> intent.Intent:
 
     simplified_tokens = simplify(root_token)
     if not simplified_tokens:
-        raise NLPException('Could not simplify sentence')
+        raise NLPError('Could not simplify sentence')
 
     vec_text = count_vectorizer.transform([token_to_sent(simplified_tokens)])
 
