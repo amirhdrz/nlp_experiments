@@ -4,15 +4,12 @@
 from collections import namedtuple
 
 from intent import Intent
-from entity_recognition import EntityType
-from frame import Frame, LambdaFrame, UserFillingFrame
+from ner import EntityType
+from frame import Frame, LambdaFrame
 from context import Context
 
 import res.strings as rs
 
-#TODO: each frame needs to be given the entities and the tokens
-
-# Each slot filler should know how to fill the its property
 
 class CourseFrame(Frame):
 
@@ -34,9 +31,9 @@ class CourseFrame(Frame):
                     return course_code
 
             # course entity was not found in the context
+            self.context.current_topic.add_expected_entity(EntityType.COURSE_CODE)
             # DEBUG only used for debugging
             print(rs.course_code_prompt)
-            self.context.current_topic.add_expected_entity(EntityType.COURSE_CODE)
             return None
 
         def user_message(self):
@@ -62,7 +59,7 @@ class CourseFrame(Frame):
             # DEBUG code
             return {'description': 'Operating Systems',
                     'title': 'csc369',
-                    'prerequistie': 'csc237'}
+                    'prerequisite': 'csc237'}
         else: return None
 
     def user_message(self):

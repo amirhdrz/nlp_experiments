@@ -1,6 +1,4 @@
-# TODO: need a better name for this file
-""" entity_recognition.py - Entity extraction.
-
+""" ner.py - Named Entity Recognition
 """
 
 from typing import List
@@ -44,6 +42,11 @@ class Entity:
     def __repr__(self):
         return str((self.type, self.tokens))
 
+
+class CourseCode(Entity):
+
+    def __init__(self, *tokens):
+        super().__init__(tokens)
 
 def extract_entities(tokens: List[Token]):
     """ Returns a list of Entity objects

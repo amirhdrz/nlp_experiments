@@ -5,7 +5,7 @@ and not worry about implementations of the other modules.
 
 from typing import List
 
-from entity_recognition import Entity, EntityType
+from ner import Entity, EntityType
 from intent import Intent
 from nlp import AnnotatedText
 import frame  # used for type hinting

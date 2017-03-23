@@ -7,7 +7,6 @@ import nlp
 from context import InteractionTopic, Context
 from frame import Frame
 from frame_models import create_frame, intent_to_slot
-import utils
 
 def process_message(intent_classifier, bow_vectorizer, user_context: Context, text: str):
 

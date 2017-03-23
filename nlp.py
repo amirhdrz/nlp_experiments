@@ -18,7 +18,7 @@ from nltk.corpus import wordnet as wn
 
 from syntax import *
 from utils import *
-import entity_recognition as er
+import ner as er
 import intent
 
 _DEBUG = True
@@ -36,7 +36,7 @@ class NLPError(Exception):
 
 class AnnotatedText:
     """
-    Note that this class performs lazy evaluation
+    This class performs lazy evaluation on all of its properties.
     """
 
     def __init__(self, text : str):
@@ -287,8 +287,8 @@ def syntax_text(text):
     """
     language_client = language.Client()
     document = language_client.document_from_text(text)
-    tokens = document.analyze_syntax()
-    return tokens
+    syntax_response = document.analyze_syntax()
+    return syntax_response.tokens
 
 
 def simplify(root_token: Token, verbose=False):
@@ -380,7 +380,6 @@ def simplify(root_token: Token, verbose=False):
             if verbose: print('xcomp ({}) attached to root'.format(xcomp))
 
 
-
     elif root_token.part_of_speech == 'NOUN':
         # If the root is Noun, keep all the noun compound modifiers 'NN'
 
@@ -404,6 +403,7 @@ def debug_simplify(text):
     tokens = simplify(root_token, verbose=True)
 
     return tokens
+
 
 def debug(text, model=None, vectorizer=None, prob=True):
     print_y('input: ' + text)
@@ -432,7 +432,6 @@ def debug(text, model=None, vectorizer=None, prob=True):
 
 
     return tokens
-
 
 
 def debug_simplify_file(data_file='sample_questions', model=None, vectorizer=None):

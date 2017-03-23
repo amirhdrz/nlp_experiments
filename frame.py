@@ -2,15 +2,57 @@
 
 NOTE: Convention used with frame fillers and user_message functions,
 is to return None explicitly.
+
+Properties of Frames:
+- Need to be able to iterate through the slots, or search the slots by their type.
+- Slots need to have a type
+- Slots need to have lazy evaluation
+- Slots need to have a functional user_message field
+-
+- Each frame needs to know its slots
+-
 """
 
-# Each frame contains slots, each slot has a slot filler
-# PARENT is represented through class inheritance.
-
 from abc import ABC, abstractmethod
+from typing import Callable, Any
 
 import context  # used for type hinting
-from entity_recognition import EntityType
+from ner import EntityType
+
+
+class Frame2(ABC):
+
+    def __init__(self, context, parent_frame=None):
+        self.context = context
+        self.parent_frame = parent_frame
+        self.slots = {}
+
+
+class Slot(ABC):
+
+    def __init__(self, context, parent_frame=None):
+        self.context = context
+        self.parent_frame = parent_frame
+        self._data = None
+
+    def __get__(self, instance, owner):
+        return self._data
+
+
+def slot(filler):
+    """
+    Frame slot decorator that evaluates lazily.
+    :param filler: filler function
+    :return:
+    """
+    attr_name = '_slot_' + filler.__name__
+
+    @property
+    def _slot(self: Frame2):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, filler(self))
+        return getattr(self, attr_name)
+    return _slot
 
 
 class Frame(ABC):

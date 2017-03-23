@@ -16,6 +16,7 @@ class Token(object):
         self.dependents = {}
 
     def add_child(self, token):
+        # TODO: change the structuer below, it makes no sense
         if token.edge_label in ['PREP', 'NN', 'P', 'ADVMOD']:
             # Multiple PREP dependencies are possible
             if token.edge_label in self.dependents:

@@ -3,7 +3,7 @@
 
 import random
 
-def nlp_fail(user_message: str):
+def nlp_fail_message(user_message: str):
     sents = ("Sorry, I don't understand '%s'.",
              "I can't understand '%s'. Sorry about that.")
 
